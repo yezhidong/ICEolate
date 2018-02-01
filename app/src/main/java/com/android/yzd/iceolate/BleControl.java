@@ -39,7 +39,7 @@ public class BleControl {
         return LazyHolder.INSTANCE;
     }
 
-    public void open(final Context context, int delayTime) {
+    public void open(int delayTime) {
         TaskScheduler.runOnUIThread(new Runnable() {
             @Override
             public void run() {
@@ -51,14 +51,32 @@ public class BleControl {
                         new BleWriteCallback() {
                             @Override
                             public void onWriteSuccess() {
-                                Toast.makeText(context, "发送数据到设备成功", Toast.LENGTH_LONG).show();
-                                // 发送数据到设备成功
                             }
 
                             @Override
                             public void onWriteFailure(BleException exception) {
-                                Toast.makeText(context, "发送数据到设备失败", Toast.LENGTH_LONG).show();
-                                // 发送数据到设备失败
+                            }
+                        });
+            }
+        }, delayTime);
+    }
+
+    public void close(int delayTime) {
+        TaskScheduler.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
+                BleManager.getInstance().write(
+                        mBUtils.getBleDevice(),
+                        mBUtils.getWriteBluetoothGattCharacteristic().getService().getUuid().toString(),
+                        mBUtils.getWriteBluetoothGattCharacteristic().getUuid().toString(),
+                        CommandControl.getInstance().operateMathine(false),
+                        new BleWriteCallback() {
+                            @Override
+                            public void onWriteSuccess() {
+                            }
+
+                            @Override
+                            public void onWriteFailure(BleException exception) {
                             }
                         });
             }

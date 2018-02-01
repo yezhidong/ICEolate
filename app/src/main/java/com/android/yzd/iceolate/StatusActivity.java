@@ -7,12 +7,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleIndicateCallback;
-import com.clj.fastble.callback.BleReadCallback;
 import com.clj.fastble.callback.BleWriteCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
@@ -22,7 +22,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.attr.data;
+import info.hoang8f.widget.FButton;
+
+import static com.android.yzd.iceolate.SettingsActivity.IS_SHESHI;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class StatusActivity extends AppCompatActivity {
@@ -45,7 +47,9 @@ public class StatusActivity extends AppCompatActivity {
     private TextView mTemp8;
     private TextView mTemp9;
     private TextView mTemp10;
-
+    private FButton mSwitchButton;
+    private FButton mDeleteButton;
+    private boolean isTurnOn = true;
 
     public static void startActivity(Context context, BleDevice bleDevice) {
         Intent intent = new Intent(context, StatusActivity.class);
@@ -57,6 +61,8 @@ public class StatusActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_status);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getResources().getString(R.string.app_name));
         BUtils instance = BUtils.getInstance();
         mBleDevice = instance.getBleDevice();
         mGattCharacteristic = instance.getWriteBluetoothGattCharacteristic();
@@ -78,6 +84,34 @@ public class StatusActivity extends AppCompatActivity {
         mTemp8 = (TextView) findViewById(R.id.temp8);
         mTemp9 = (TextView) findViewById(R.id.temp9);
         mTemp10 = (TextView) findViewById(R.id.temp10);
+
+        mSwitchButton = (FButton) findViewById(R.id.switchButton);
+        mDeleteButton = (FButton) findViewById(R.id.deleteButton);
+        mSwitchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isTurnOn) {
+                    BleControl.getInstance().close(100);
+                    mSwitchButton.setText("TURN ON");
+                } else {
+                    BleControl.getInstance().open(100);
+                    mSwitchButton.setText("TURN OFF");
+                }
+                isTurnOn = !isTurnOn;
+            }
+        });
+
+        mDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isTurnOn) {
+                    BleControl.getInstance().close(0);
+                    BleManager.getInstance().disconnectAllDevice();
+                    BleManager.getInstance().destroy();
+                    finish();
+                }
+            }
+        });
     }
 
     @Override
@@ -175,64 +209,79 @@ public class StatusActivity extends AppCompatActivity {
                 if (tempList.get(0) > 39) {
                     mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(1) > 39) {
                     mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(2) > 39) {
                     mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(3) > 39) {
                     mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(4) > 39) {
                     mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(5) > 39) {
                     mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(6) > 39) {
                     mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(7) > 39) {
                     mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(8) > 39) {
                     mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 if (tempList.get(9) > 39) {
                     mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
                 } else {
-                    mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_75_pure_black));
+                    mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
                 }
                 DecimalFormat df = new DecimalFormat("0.0");
-                mTemp1.setText(df.format(tempList.get(0)));
-                mTemp2.setText(df.format(tempList.get(1)));
-                mTemp3.setText(df.format(tempList.get(2)));
-                mTemp4.setText(df.format(tempList.get(3)));
-                mTemp5.setText(df.format(tempList.get(4)));
-                mTemp6.setText(df.format(tempList.get(5)));
-                mTemp7.setText(df.format(tempList.get(6)));
-                mTemp8.setText(df.format(tempList.get(7)));
-                mTemp9.setText(df.format(tempList.get(8)));
-                mTemp10.setText(df.format(tempList.get(9)));
+                boolean isSheShi = (boolean) SharedPreferencesUtils.getParam(StatusActivity.this, IS_SHESHI, true);
+                if (isSheShi) {
+                    mTemp1.setText(df.format(tempList.get(0)) + "℃");
+                    mTemp2.setText(df.format(tempList.get(1)) + "℃");
+                    mTemp3.setText(df.format(tempList.get(2)) + "℃");
+                    mTemp4.setText(df.format(tempList.get(3)) + "℃");
+                    mTemp5.setText(df.format(tempList.get(4)) + "℃");
+                    mTemp6.setText(df.format(tempList.get(5)) + "℃");
+                    mTemp7.setText(df.format(tempList.get(6)) + "℃");
+                    mTemp8.setText(df.format(tempList.get(7)) + "℃");
+                    mTemp9.setText(df.format(tempList.get(8)) + "℃");
+                    mTemp10.setText(df.format(tempList.get(9)) + "℃");
+                } else {
+                    mTemp1.setText(df.format(tempList.get(0) * 1.8 + 32) + "℉");
+                    mTemp2.setText(df.format(tempList.get(1) * 1.8 + 32) + "℉");
+                    mTemp3.setText(df.format(tempList.get(2) * 1.8 + 32) + "℉");
+                    mTemp4.setText(df.format(tempList.get(3) * 1.8 + 32) + "℉");
+                    mTemp5.setText(df.format(tempList.get(4) * 1.8 + 32) + "℉");
+                    mTemp6.setText(df.format(tempList.get(5) * 1.8 + 32) + "℉");
+                    mTemp7.setText(df.format(tempList.get(6) * 1.8 + 32) + "℉");
+                    mTemp8.setText(df.format(tempList.get(7) * 1.8 + 32) + "℉");
+                    mTemp9.setText(df.format(tempList.get(8) * 1.8 + 32) + "℉");
+                    mTemp10.setText(df.format(tempList.get(9) * 1.8 + 32) + "℉");
+                }
+
             }
         }, 0);
 

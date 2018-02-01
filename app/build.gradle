@@ -38,4 +38,6 @@ dependencies {
     compile 'com.clj.fastble:FastBleLib:2.2.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
+    compile 'info.hoang8f:fbutton:1.0.5'
+    compile 'com.kyleduo.switchbutton:library:2.0.0'
 }

@@ -173,6 +173,7 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
             public void onDetail(BleDevice bleDevice) {
                 if (BleManager.getInstance().isConnected(bleDevice)) {
                     StatusActivity.startActivity(BluetoothConnectActivity.this, bleDevice);
+                    finish();
                 }
             }
         });
@@ -298,15 +299,11 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
                                 new BleWriteCallback() {
                                     @Override
                                     public void onWriteSuccess() {
-                                        Toast.makeText(BluetoothConnectActivity.this, "发送数据到设备成功", Toast.LENGTH_LONG).show();
-                                        // 发送数据到设备成功
-                                        BleControl.getInstance().open(BluetoothConnectActivity.this, 100);
+                                        BleControl.getInstance().open(100);
                                     }
 
                                     @Override
                                     public void onWriteFailure(BleException exception) {
-                                        Toast.makeText(BluetoothConnectActivity.this, "发送数据到设备失败", Toast.LENGTH_LONG).show();
-                                        // 发送数据到设备失败
                                     }
                                 });
                     }
