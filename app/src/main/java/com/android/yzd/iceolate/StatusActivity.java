@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleIndicateCallback;
@@ -21,6 +24,8 @@ import com.silencedut.taskscheduler.TaskScheduler;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import info.hoang8f.widget.FButton;
 
@@ -96,6 +101,7 @@ public class StatusActivity extends AppCompatActivity {
                 } else {
                     BleControl.getInstance().open(100);
                     mSwitchButton.setText("TURN OFF");
+                    readTemp();
                 }
                 isTurnOn = !isTurnOn;
             }
@@ -118,32 +124,48 @@ public class StatusActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         notifyData();
-        writeTemp();
+        readTemp();
     }
 
-    private void writeTemp() {
-        TaskScheduler.runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                BleManager.getInstance().write(
-                        mBleDevice,
-                        mGattCharacteristic.getService().getUuid().toString(),
-                        mGattCharacteristic.getUuid().toString(),
-                        CommandControl.getInstance().writeTemplete(),
-                        new BleWriteCallback() {
-                            @Override
-                            public void onWriteSuccess() {
-                            }
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
 
-                            @Override
-                            public void onWriteFailure(BleException exception) {
-                            }
-                        });
+        @Override
+        public void run() {
+            if (!isTurnOn) {
+                return;
             }
-        }, 1000);
+            Log.d("yzd", "time run");
+            BleManager.getInstance().write(
+                    mBleDevice,
+                    mGattCharacteristic.getService().getUuid().toString(),
+                    mGattCharacteristic.getUuid().toString(),
+                    CommandControl.getInstance().writeTemplete(),
+                    new BleWriteCallback() {
+                        @Override
+                        public void onWriteSuccess() {
+                        }
+
+                        @Override
+                        public void onWriteFailure(BleException exception) {
+                        }
+                    });
+            handler.postDelayed(this, 3000);
+        }
+    };
+
+    private void readTemp() {
+        isTurnOn = true;
+        handler.postDelayed(runnable, 2000);
     }
 
-
+    @Override
+    protected void onPause() {
+        if (isTurnOn) {
+            isTurnOn = false;
+        }
+        super.onPause();
+    }
     private void notifyData() {
         TaskScheduler.runOnUIThread(new Runnable() {
             @Override
@@ -155,136 +177,119 @@ public class StatusActivity extends AppCompatActivity {
                         new BleIndicateCallback() {
                             @Override
                             public void onIndicateSuccess() {
-                                // 打开通知操作成功
-//                                Toast.makeText(StatusActivity.this, "打开通知操作成功", Toast.LENGTH_LONG).show();
-
                             }
 
                             @Override
                             public void onIndicateFailure(BleException exception) {
-                                // 打开通知操作失败
-//                                Toast.makeText(StatusActivity.this, "失败", Toast.LENGTH_LONG).show();
                             }
 
                             @Override
                             public void onCharacteristicChanged(byte[] data) {
-                                // 打开通知后，设备发过来的数据将在这里出现
-//                                Toast.makeText(StatusActivity.this, "成功收到", Toast.LENGTH_LONG).show();
-                                try {
-                                    int[] bytes = new int[2];
-                                    bytes[0] = 0;
-                                    bytes[1] = 0;
-                                    int j = 0;
-                                    for (int i = 0; i < data.length; i++) {
-                                        if (i % 2 == 0) {
-                                            bytes[0] = data[i] & 0xFF;
-                                        } else {
-                                            bytes[1] = data[i] & 0xFF;
-                                            float parseInt = bytes[0] * 255 + bytes[1];
-                                            float nowTemp;
-                                            if (parseInt < 100) {
-                                                nowTemp = -(100 - parseInt) / 10;
-                                            } else {
-                                                nowTemp = (parseInt - 100) / 10;
-                                            }
-                                            tempList.add(j++, nowTemp);
-                                        }
-                                    }
-                                    updateTemp();
-                                } catch (Exception e) {
-//                                    Toast.makeText(StatusActivity.this, "转化失败", Toast.LENGTH_LONG).show();
+                                if (!isTurnOn) {
+                                    return;
                                 }
-
+                                int[] bytes = new int[2];
+                                bytes[0] = 0;
+                                bytes[1] = 0;
+                                int j = 0;
+                                for (int i = 0; i < data.length; i++) {
+                                    if (i % 2 == 0) {
+                                        bytes[0] = data[i] & 0xFF;
+                                    } else {
+                                        bytes[1] = data[i] & 0xFF;
+                                        float parseInt = bytes[0] * 255 + bytes[1];
+                                        float nowTemp;
+                                        if (parseInt < 100) {
+                                            nowTemp = -(100 - parseInt) / 10;
+                                        } else {
+                                            nowTemp = (parseInt - 100) / 10;
+                                        }
+                                        tempList.add(j++, nowTemp);
+                                    }
+                                }
+                                updateTemp();
                             }
                         });
             }
-        }, 0);
+        }, 1000);
 
     }
 
     private void updateTemp() {
-        TaskScheduler.runOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                if (tempList.get(0) > 39) {
-                    mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(1) > 39) {
-                    mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(2) > 39) {
-                    mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(3) > 39) {
-                    mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(4) > 39) {
-                    mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(5) > 39) {
-                    mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(6) > 39) {
-                    mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(7) > 39) {
-                    mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(8) > 39) {
-                    mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                if (tempList.get(9) > 39) {
-                    mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
-                } else {
-                    mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
-                }
-                DecimalFormat df = new DecimalFormat("0.0");
-                boolean isSheShi = (boolean) SharedPreferencesUtils.getParam(StatusActivity.this, IS_SHESHI, true);
-                if (isSheShi) {
-                    mTemp1.setText(df.format(tempList.get(0)) + "℃");
-                    mTemp2.setText(df.format(tempList.get(1)) + "℃");
-                    mTemp3.setText(df.format(tempList.get(2)) + "℃");
-                    mTemp4.setText(df.format(tempList.get(3)) + "℃");
-                    mTemp5.setText(df.format(tempList.get(4)) + "℃");
-                    mTemp6.setText(df.format(tempList.get(5)) + "℃");
-                    mTemp7.setText(df.format(tempList.get(6)) + "℃");
-                    mTemp8.setText(df.format(tempList.get(7)) + "℃");
-                    mTemp9.setText(df.format(tempList.get(8)) + "℃");
-                    mTemp10.setText(df.format(tempList.get(9)) + "℃");
-                } else {
-                    mTemp1.setText(df.format(tempList.get(0) * 1.8 + 32) + "℉");
-                    mTemp2.setText(df.format(tempList.get(1) * 1.8 + 32) + "℉");
-                    mTemp3.setText(df.format(tempList.get(2) * 1.8 + 32) + "℉");
-                    mTemp4.setText(df.format(tempList.get(3) * 1.8 + 32) + "℉");
-                    mTemp5.setText(df.format(tempList.get(4) * 1.8 + 32) + "℉");
-                    mTemp6.setText(df.format(tempList.get(5) * 1.8 + 32) + "℉");
-                    mTemp7.setText(df.format(tempList.get(6) * 1.8 + 32) + "℉");
-                    mTemp8.setText(df.format(tempList.get(7) * 1.8 + 32) + "℉");
-                    mTemp9.setText(df.format(tempList.get(8) * 1.8 + 32) + "℉");
-                    mTemp10.setText(df.format(tempList.get(9) * 1.8 + 32) + "℉");
-                }
-
-            }
-        }, 0);
-
-
+        if (tempList.get(0) > 39) {
+            mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(1) > 39) {
+            mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(2) > 39) {
+            mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(3) > 39) {
+            mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(4) > 39) {
+            mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(5) > 39) {
+            mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(6) > 39) {
+            mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(7) > 39) {
+            mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(8) > 39) {
+            mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        if (tempList.get(9) > 39) {
+            mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+        } else {
+            mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
+        }
+        DecimalFormat df = new DecimalFormat("0.0");
+        boolean isSheShi = (boolean) SharedPreferencesUtils.getParam(StatusActivity.this, IS_SHESHI, true);
+        if (isSheShi) {
+            mTemp1.setText(df.format(tempList.get(0)) + "℃");
+            mTemp2.setText(df.format(tempList.get(1)) + "℃");
+            mTemp3.setText(df.format(tempList.get(2)) + "℃");
+            mTemp4.setText(df.format(tempList.get(3)) + "℃");
+            mTemp5.setText(df.format(tempList.get(4)) + "℃");
+            mTemp6.setText(df.format(tempList.get(5)) + "℃");
+            mTemp7.setText(df.format(tempList.get(6)) + "℃");
+            mTemp8.setText(df.format(tempList.get(7)) + "℃");
+            mTemp9.setText(df.format(tempList.get(8)) + "℃");
+            mTemp10.setText(df.format(tempList.get(9)) + "℃");
+        } else {
+            mTemp1.setText(df.format(tempList.get(0) * 1.8 + 32) + "℉");
+            mTemp2.setText(df.format(tempList.get(1) * 1.8 + 32) + "℉");
+            mTemp3.setText(df.format(tempList.get(2) * 1.8 + 32) + "℉");
+            mTemp4.setText(df.format(tempList.get(3) * 1.8 + 32) + "℉");
+            mTemp5.setText(df.format(tempList.get(4) * 1.8 + 32) + "℉");
+            mTemp6.setText(df.format(tempList.get(5) * 1.8 + 32) + "℉");
+            mTemp7.setText(df.format(tempList.get(6) * 1.8 + 32) + "℉");
+            mTemp8.setText(df.format(tempList.get(7) * 1.8 + 32) + "℉");
+            mTemp9.setText(df.format(tempList.get(8) * 1.8 + 32) + "℉");
+            mTemp10.setText(df.format(tempList.get(9) * 1.8 + 32) + "℉");
+        }
     }
 }
