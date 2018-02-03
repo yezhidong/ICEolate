@@ -40,4 +40,5 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'info.hoang8f:fbutton:1.0.5'
     compile 'com.kyleduo.switchbutton:library:2.0.0'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
 }

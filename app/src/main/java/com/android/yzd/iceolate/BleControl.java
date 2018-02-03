@@ -82,4 +82,21 @@ public class BleControl {
             }
         }, delayTime);
     }
+
+    public void readHistory() {
+        BleManager.getInstance().write(
+                mBUtils.getBleDevice(),
+                mBUtils.getWriteBluetoothGattCharacteristic().getService().getUuid().toString(),
+                mBUtils.getWriteBluetoothGattCharacteristic().getUuid().toString(),
+                CommandControl.getInstance().readHistoryTemp(),
+                new BleWriteCallback() {
+                    @Override
+                    public void onWriteSuccess() {
+                    }
+
+                    @Override
+                    public void onWriteFailure(BleException exception) {
+                    }
+                });
+    }
 }

@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_history) {
-
+            startActivity(new Intent(this, HistoryActivity.class));
         } else if (id == R.id.nav_setting) {
             startActivity(new Intent(this, SettingsActivity.class));
         }

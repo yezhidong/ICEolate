@@ -21,6 +21,7 @@ import java.util.Calendar;
 public class CommandControl {
 
     private static final String READ_TEMPLETE_COMMAND = "a1";// 读取温度指令
+    private static final String READ_HISTORY_TEMPLETE_COMMAND = "d1";// 读取历史温度指令
     private static final String CONTROL_COMMAND = "b1";// 控制指令
     private static final String UPDATE_TIME_COMMAND = "c1";
     private static final String CHECK_SUM = "aa";
@@ -63,6 +64,20 @@ public class CommandControl {
      */
     public byte[] writeTemplete() {
         return HexUtil.hexStringToBytes(getReadTempleteCommandStr());
+    }
+
+    public byte[] readHistoryTemp() {
+        return HexUtil.hexStringToBytes(getReadHistoryTempCommandStr());
+    }
+
+    private String getReadHistoryTempCommandStr() {
+        return READ_HISTORY_TEMPLETE_COMMAND
+                + Data0
+                + Data1
+                + Data2
+                + Data3
+                + "0000000000000000000000000000"
+                + CHECK_SUM;
     }
 
     private String getOpenCommandStr(boolean isOpen) {

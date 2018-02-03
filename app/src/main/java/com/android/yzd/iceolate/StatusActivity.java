@@ -98,12 +98,13 @@ public class StatusActivity extends AppCompatActivity {
                 if (isTurnOn) {
                     BleControl.getInstance().close(100);
                     mSwitchButton.setText("TURN ON");
+                    isTurnOn = false;
                 } else {
                     BleControl.getInstance().open(100);
                     mSwitchButton.setText("TURN OFF");
                     readTemp();
+                    isTurnOn = true;
                 }
-                isTurnOn = !isTurnOn;
             }
         });
 
