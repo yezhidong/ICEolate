@@ -94,7 +94,7 @@ public class BUtils {
         return BleManager.getInstance().getAllConnectedDevice();
     }
 
-    private boolean isConnect() {
+    public boolean isConnect() {
         List<BleDevice> services = getServices();
         if (services != null && services.size() > 0) {
             BleDevice bleDevice = services.get(0);

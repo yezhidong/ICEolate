@@ -3,16 +3,20 @@ package com.android.yzd.iceolate;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleIndicateCallback;
@@ -24,12 +28,16 @@ import com.silencedut.taskscheduler.TaskScheduler;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import info.hoang8f.widget.FButton;
 
+import static com.android.yzd.iceolate.SettingsActivity.Alert;
 import static com.android.yzd.iceolate.SettingsActivity.IS_SHESHI;
+import static com.android.yzd.iceolate.SettingsActivity.Shake;
+import static com.android.yzd.iceolate.SettingsActivity.ShakeSound;
+import static com.android.yzd.iceolate.SettingsActivity.Sound;
+import static com.android.yzd.iceolate.SettingsActivity.TEMPERATURE_SETTING;
+import static com.android.yzd.iceolate.SettingsActivity.defaulttem;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class StatusActivity extends AppCompatActivity {
@@ -55,6 +63,12 @@ public class StatusActivity extends AppCompatActivity {
     private FButton mSwitchButton;
     private FButton mDeleteButton;
     private boolean isTurnOn = true;
+    private boolean isAlert;
+    private boolean isSound;
+    private boolean isShake;
+    private boolean isShakeSound;
+    private Vibrator vibrator;
+    private MediaPlayer mMediaPlayer;
 
     public static void startActivity(Context context, BleDevice bleDevice) {
         Intent intent = new Intent(context, StatusActivity.class);
@@ -68,6 +82,10 @@ public class StatusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_status);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.app_name));
+        isAlert = (boolean) SharedPreferencesUtils.getParam(this, Alert, true);
+        isSound = (boolean) SharedPreferencesUtils.getParam(this, Sound, true);
+        isShake = (boolean) SharedPreferencesUtils.getParam(this, Shake, true);
+        isShakeSound = (boolean) SharedPreferencesUtils.getParam(this, ShakeSound, true);
         BUtils instance = BUtils.getInstance();
         mBleDevice = instance.getBleDevice();
         mGattCharacteristic = instance.getWriteBluetoothGattCharacteristic();
@@ -167,6 +185,7 @@ public class StatusActivity extends AppCompatActivity {
         }
         super.onPause();
     }
+
     private void notifyData() {
         TaskScheduler.runOnUIThread(new Runnable() {
             @Override
@@ -216,53 +235,146 @@ public class StatusActivity extends AppCompatActivity {
 
     }
 
+    private void shouldAlert() {
+        if (!isAlert) {
+            return;
+        }
+
+        if (isShakeSound) {
+            startAlarm();
+            startVibrate();
+        } else if (isShake) {
+            startVibrate();
+        } else if (isSound) {
+            startAlarm();
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopAlarm();
+        stopViberate();
+        super.onDestroy();
+    }
+
+    /**
+     * 开启震动
+     */
+    private void startVibrate() {
+        if (vibrator == null) {
+            //获取震动服务
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        }
+        //震动模式隔1秒震动1.4秒
+        long[] pattern = {1000, 1400};
+        //震动重复，从数组的0开始（-1表示不重复）
+        vibrator.vibrate(pattern, 0);
+    }
+
+    /**
+     * 停止震动
+     */
+    private void stopViberate() {
+        if (vibrator != null) {
+            vibrator.cancel();
+        }
+    }
+
+    /**
+     * 播放系统声音
+     */
+    private void startAlarm() {
+        // 如果为空，才构造，不为空，说明之前有构造过
+        try {
+            if (mMediaPlayer == null)
+                mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setDataSource(this, getSystemDefultRingtoneUri());
+            mMediaPlayer.setLooping(true); //循环播放
+            mMediaPlayer.prepare();
+            mMediaPlayer.start();
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    /**
+     * 停止播放来电声音
+     */
+    private void stopAlarm() {
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+                mMediaPlayer = null;
+            }
+        }
+    }
+
+    // 获取系统默认铃声的Uri
+    private Uri getSystemDefultRingtoneUri() {
+        return RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE);
+    }
+
     private void updateTemp() {
-        if (tempList.get(0) > 39) {
+        int tempetureSetting = (int) SharedPreferencesUtils.getParam(this, TEMPERATURE_SETTING, defaulttem);
+        if (tempList.get(0) > tempetureSetting) {
             mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
+            shouldAlert();
         } else {
             mTemp1.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(1) > 39) {
+        if (tempList.get(1) > tempetureSetting) {
+            shouldAlert();
             mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp2.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(2) > 39) {
+        if (tempList.get(2) > tempetureSetting) {
+            shouldAlert();
             mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp3.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(3) > 39) {
+        if (tempList.get(3) > tempetureSetting) {
+            shouldAlert();
             mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp4.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(4) > 39) {
+        if (tempList.get(4) > tempetureSetting) {
+            shouldAlert();
             mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp5.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(5) > 39) {
+        if (tempList.get(5) > tempetureSetting) {
+            shouldAlert();
             mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp6.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(6) > 39) {
+        if (tempList.get(6) > tempetureSetting) {
+            shouldAlert();
             mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp7.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(7) > 39) {
+        if (tempList.get(7) > tempetureSetting) {
+            shouldAlert();
             mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp8.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(8) > 39) {
+        if (tempList.get(8) > tempetureSetting) {
+            shouldAlert();
             mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp9.setTextColor(getResources().getColor(R.color.qmui_config_color_white));
         }
-        if (tempList.get(9) > 39) {
+        if (tempList.get(9) > tempetureSetting) {
+            shouldAlert();
             mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_red));
         } else {
             mTemp10.setTextColor(getResources().getColor(R.color.qmui_config_color_white));

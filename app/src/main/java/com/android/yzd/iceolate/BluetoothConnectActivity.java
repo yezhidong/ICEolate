@@ -307,7 +307,7 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
                                     }
                                 });
                     }
-                }, 2000);
+                }, 0);
             }
 
             @Override

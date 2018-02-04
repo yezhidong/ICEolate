@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.yzd.iceolate.dummy.DummyItem;
 import com.clj.fastble.BleManager;
@@ -58,7 +59,13 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
         toolbar.setTitle("History temperature");
         mTabSegment = (QMUITabSegment) findViewById(R.id.tabSegment);
         mContentViewPager = (ViewPager) findViewById(R.id.contentViewPager);
+
         BUtils instance = BUtils.getInstance();
+        if (!instance.isConnect()) {
+            finish();
+            Toast.makeText(this, "please connect bluetooth first", Toast.LENGTH_LONG).show();
+            return;
+        }
         mBleDevice = instance.getBleDevice();
         mReadBluetoothGattCharacteristic = instance.getReadBluetoothGattCharacteristic();
         initTabAndPager();
@@ -192,18 +199,6 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
     }
 
     private void initTabAndPager() {
-//        mContentViewPager.setAdapter(mPagerAdapter);
-//        mContentViewPager.setCurrentItem(1, false);
-//        mTabSegment.setDefaultSelectedColor(getResources().getColor(R.color.app_color_blue));
-//        for (int i = 0; i < TAB_COUNT; i++) {
-//            mTabSegment.addTab(new QMUITabSegment.Tab("T" + (i + 1)));
-//        }
-//        int space = QMUIDisplayHelper.dp2px(HistoryActivity.this, 16);
-//        mTabSegment.setHasIndicator(true);
-//        mTabSegment.setMode(QMUITabSegment.MODE_SCROLLABLE);
-//        mTabSegment.setItemSpaceInScrollMode(space);
-//        mTabSegment.setupWithViewPager(mContentViewPager, false);
-//        mTabSegment.setPadding(space, 0, space, 0);
         TaskScheduler.runOnUIThread(new Runnable() {
             @Override
             public void run() {
@@ -220,7 +215,7 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
                 mTabSegment.setupWithViewPager(mContentViewPager, false);
                 mTabSegment.setPadding(space, 0, space, 0);
             }
-        }, 10000);
+        }, 5000);
     }
 
     private FragmentPagerAdapter mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -243,53 +238,4 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
 
     }
 
-//    public enum ContentPage {
-//        T1(0),
-//        T2(1),
-//        T3(2),
-//        T4(3),
-//        T5(4),
-//        T6(5),
-//        T7(6),
-//        T8(7),
-//        T9(8),
-//        T10(9);
-//        public static final int SIZE = 10;
-//        private final int position;
-//
-//        ContentPage(int pos) {
-//            position = pos;
-//        }
-//
-//        public static ContentPage getPage(int position) {
-//            switch (position) {
-//                case 0:
-//                    return T1;
-//                case 1:
-//                    return T2;
-//                case 2:
-//                    return T3;
-//                case 3:
-//                    return T4;
-//                case 4:
-//                    return T5;
-//                case 5:
-//                    return T6;
-//                case 6:
-//                    return T7;
-//                case 7:
-//                    return T8;
-//                case 8:
-//                    return T9;
-//                case 9:
-//                    return T10;
-//                default:
-//                    return T1;
-//            }
-//        }
-//
-//        public int getPosition() {
-//            return position;
-//        }
-//    }
 }
