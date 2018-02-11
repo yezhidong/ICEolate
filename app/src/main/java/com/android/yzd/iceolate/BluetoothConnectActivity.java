@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -28,7 +27,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -51,6 +49,9 @@ import com.silencedut.taskscheduler.TaskScheduler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import info.hoang8f.widget.FButton;
+
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BluetoothConnectActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -60,7 +61,7 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
 
     private LinearLayout layout_setting;
     private TextView txt_setting;
-    private Button btn_scan;
+    private FButton btn_scan;
     private EditText et_name, et_mac, et_uuid;
     private Switch sw_auto;
     private ImageView img_loading;
@@ -68,19 +69,12 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
     private Animation operatingAnim;
     private DeviceAdapter mDeviceAdapter;
     private ProgressDialog progressDialog;
-    private Button btn_open_bluetooth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_connect);
         initView();
-
-        BleManager.getInstance().init(getApplication());
-        BleManager.getInstance()
-                .enableLog(true)
-                .setMaxConnectCount(7)
-                .setOperateTimeout(5000);
     }
 
     @Override
@@ -104,14 +98,6 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
                     BleManager.getInstance().cancelScan();
                 }
                 break;
-
-            case R.id.btn_open_bluetooth:
-                BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                if (!bluetoothAdapter.isEnabled()) {
-                    bluetoothAdapter.enable();
-                }
-                break;
-
             case R.id.txt_setting:
                 if (layout_setting.getVisibility() == View.VISIBLE) {
                     layout_setting.setVisibility(View.GONE);
@@ -127,14 +113,12 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
     private void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
-        btn_scan = (Button) findViewById(R.id.btn_scan);
-        btn_open_bluetooth = (Button) findViewById(R.id.btn_open_bluetooth);
+        btn_scan = (FButton) findViewById(R.id.btn_scan);
         btn_scan.setText(getString(R.string.start_scan));
         btn_scan.setOnClickListener(this);
-        btn_open_bluetooth.setOnClickListener(this);
 
         et_name = (EditText) findViewById(R.id.et_name);
         et_mac = (EditText) findViewById(R.id.et_mac);
@@ -288,26 +272,29 @@ public class BluetoothConnectActivity extends AppCompatActivity implements View.
                 BUtils instance = BUtils.getInstance();
                 instance.setBleDevice(bleDevice);
                 instance.setBluetoothGatt(gatt);
-                TaskScheduler.runOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        BleManager.getInstance().write(
-                                bleDevice,
-                                bluetoothGattCharacteristic.getService().getUuid().toString(),
-                                bluetoothGattCharacteristic.getUuid().toString(),
-                                CommandControl.getInstance().getTime(),
-                                new BleWriteCallback() {
+                BleManager.getInstance().write(
+                        bleDevice,
+                        bluetoothGattCharacteristic.getService().getUuid().toString(),
+                        bluetoothGattCharacteristic.getUuid().toString(),
+                        CommandControl.getInstance().getTime(),
+                        new BleWriteCallback() {
+                            @Override
+                            public void onWriteSuccess() {
+                                BleControl.getInstance().open(100);
+                                TaskScheduler.runOnUIThread(new Runnable() {
                                     @Override
-                                    public void onWriteSuccess() {
-                                        BleControl.getInstance().open(100);
+                                    public void run() {
+                                        setResult(100);
+                                        BluetoothConnectActivity.this.finish();
                                     }
+                                }, 500);
+                            }
 
-                                    @Override
-                                    public void onWriteFailure(BleException exception) {
-                                    }
-                                });
-                    }
-                }, 0);
+                            @Override
+                            public void onWriteFailure(BleException exception) {
+                            }
+                        });
+
             }
 
             @Override

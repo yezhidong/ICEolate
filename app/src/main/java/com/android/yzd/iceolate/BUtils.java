@@ -99,7 +99,7 @@ public class BUtils {
         if (services != null && services.size() > 0) {
             BleDevice bleDevice = services.get(0);
             if (bleDevice != null) {
-                String name = bleDevice.getName();
+                String name = bleDevice.getName().trim();
                 if (name.equalsIgnoreCase(SERVICE_NAME)) {
                     mBleDevice = bleDevice;
                     return true;

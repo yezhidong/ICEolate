@@ -104,22 +104,22 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
                                 if (isFirstTime) {
                                     isFirstTime = false;
                                     for (int i = 0; i < data.length; i++) {
-                                        int shuju = data[i] & 0xFF;
-                                        if (i == 0) {
+                                        int shuju = data[i];
+                                        if (i == 1) {
                                             year = shuju;
-                                        } else if (i == 1) {
+                                        } else if (i == 2) {
                                             month = shuju;
                                             calMonth = month;
-                                        } else if (i == 2) {
+                                        } else if (i == 3) {
                                             day = shuju;
                                             calDay = day;
-                                        } else if (i == 3) {
+                                        } else if (i == 4) {
                                             hour = shuju;
                                             calHour = hour;
-                                        } else if (i == 4) {
+                                        } else if (i == 5) {
                                             minute = shuju;
                                             calMinute = minute;
-                                        } else if (i == 5) {
+                                        } else if (i == 6) {
                                             second = shuju;
                                         }
                                     }
@@ -129,11 +129,12 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
                                     Log.d("yzd", "first" + nowTime);
                                 } else {
 
-                                    calMinute = calMinute - 5;
+                                    calMinute = calMinute - 3;
                                     if (calMinute < 0) {
                                         calMinute = 60 + calMinute;
-                                        calHour = hour - 1;
+                                        calHour = calHour - 1;
                                         if (calHour == 0) {
+                                            calHour = 24;
                                             calDay = calDay - 1;
                                             if (calDay == 0) {
                                                 calMonth = calMonth - 1;
@@ -164,13 +165,17 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
                                         if (i % 2 == 0) {
                                             bytes[0] = data[i] & 0xFF;
                                         } else {
-                                            bytes[1] = data[i] & 0xFF;
-                                            float parseInt = bytes[0] * 255 + bytes[1];
-                                            float nowTemp;
-                                            if (parseInt < 100) {
-                                                nowTemp = -(100 - parseInt) / 10;
+                                            float nowTemp = 0;
+                                            if (bytes[0] >= 4) {
+                                                nowTemp = 0;
                                             } else {
-                                                nowTemp = (parseInt - 100) / 10;
+                                                bytes[1] = data[i] & 0xFF;
+                                                float parseInt = bytes[0] * 255 + bytes[1];
+                                                if (parseInt < 100) {
+                                                    nowTemp = -(100 - parseInt) / 10;
+                                                } else {
+                                                    nowTemp = (parseInt - 100) / 10;
+                                                }
                                             }
 
                                             int i1 = i / 2 + 1;
@@ -203,8 +208,9 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
             @Override
             public void run() {
                 mContentViewPager.setAdapter(mPagerAdapter);
-                mContentViewPager.setCurrentItem(1, false);
+                mContentViewPager.setCurrentItem(0, false);
                 mTabSegment.setDefaultSelectedColor(getResources().getColor(R.color.app_color_blue));
+                mTabSegment.setDefaultNormalColor(getResources().getColor(R.color.qmui_config_color_white));
                 for (int i = 0; i < TAB_COUNT; i++) {
                     mTabSegment.addTab(new QMUITabSegment.Tab("T" + (i + 1)));
                 }
@@ -229,6 +235,18 @@ public class HistoryActivity extends AppCompatActivity implements HistoryItemFra
         public Fragment getItem(int position) {
             int i = position + 1;
             ArrayList<DummyItem> dummyItems = dataMap.get("T" + i);
+//            ArrayList<DummyItem> items = new ArrayList<>();
+//            if (dummyItems != null && dummyItems.size() > 0) {
+//                for (int j = 0; j < dummyItems.size(); j++) {
+//                    DummyItem dummyItem = dummyItems.get(j);
+//                    DummyItem item = new DummyItem("", dummyItem.content);
+//                    items.add(item);
+//                }
+//                Collections.reverse(items);
+//                for (int j = 0; j < items.size(); j++) {
+//                    dummyItems.get(j).content = items.get(j).content;
+//                }
+//            }
             return HistoryItemFragment.newInstance(dummyItems);
         }
     };

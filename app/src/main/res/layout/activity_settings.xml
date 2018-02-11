@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/qmui_config_color_black"
+    android:baselineAligned="false"
     android:orientation="vertical"
-    tools:context="com.android.yzd.iceolate.SettingsActivity"
-    android:baselineAligned="false">
+    tools:context="com.android.yzd.iceolate.SettingsActivity">
 
 
     <android.support.v7.widget.Toolbar
@@ -21,8 +22,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="12dp"
         android:text="High temperature setting"
-        android:padding="12dp"/>
+        android:textColor="@color/qmui_config_color_white"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -33,7 +35,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="35.0℃"/>
+            android:text="35.0℃"
+            android:textColor="@color/qmui_config_color_white"/>
 
 
         <com.android.yzd.iceolate.NumberProgressBar
@@ -47,7 +50,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="43.0℃"/>
+            android:text="43.0℃"
+            android:textColor="@color/qmui_config_color_white"/>
 
     </LinearLayout>
 
@@ -59,26 +63,26 @@
             android:id="@+id/jian"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:padding="6dp"
-            android:visibility="visible"
-            android:src="@drawable/temdec"
-            android:layout_marginRight="44dp"
-            android:layout_marginEnd="44dp"
             android:layout_alignParentTop="true"
+            android:layout_marginEnd="44dp"
+            android:layout_marginRight="44dp"
             android:layout_toLeftOf="@+id/imageView4"
-            android:layout_toStartOf="@+id/imageView4"/>
+            android:layout_toStartOf="@+id/imageView4"
+            android:padding="6dp"
+            android:src="@drawable/temdec"
+            android:visibility="visible"/>
 
         <ImageView
+            android:id="@+id/imageView4"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:padding="6dp"
-            android:src="@drawable/tempadd"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="13dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
             android:layout_marginEnd="13dp"
-            android:id="@+id/imageView4"/>
+            android:layout_marginRight="13dp"
+            android:padding="6dp"
+            android:src="@drawable/tempadd"/>
     </RelativeLayout>
 
     <View
@@ -99,6 +103,7 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:text="Temperature unit"
+            android:textColor="@color/qmui_config_color_white"
             android:textSize="15sp"
             android:visibility="visible"/>
 
@@ -111,6 +116,7 @@
             android:layout_toLeftOf="@+id/sb_use_delay"
             android:layout_toStartOf="@+id/sb_use_delay"
             android:text="℃"
+            android:textColor="@color/qmui_config_color_white"
             android:textSize="15sp"
             android:visibility="visible"/>
 
@@ -123,6 +129,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="6dp"
             android:text="℉"
+            android:textColor="@color/qmui_config_color_white"
             android:textSize="15sp"/>
 
         <com.kyleduo.switchbutton.SwitchButton
@@ -151,24 +158,26 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:text="Alert way"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:textColor="@color/qmui_config_color_white"/>
 
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/alertSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:kswTintColor="#16A560"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="17dp"
             android:layout_marginRight="17dp"
-            android:layout_marginEnd="17dp"/>
+            android:visibility="visible"
+            app:kswTintColor="#16A560"/>
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
@@ -182,25 +191,27 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:text="Vibrator"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:textColor="@color/qmui_config_color_white"/>
 
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/zhenDongSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:kswTintColor="#16A560"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="17dp"
             android:layout_marginRight="17dp"
-            android:layout_marginEnd="17dp"/>
+            android:visibility="visible"
+            app:kswTintColor="#16A560"/>
 
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
@@ -214,29 +225,32 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:text="Sound"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:textColor="@color/qmui_config_color_white"/>
 
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/soundSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:kswTintColor="#16A560"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="17dp"
             android:layout_marginRight="17dp"
-            android:layout_marginEnd="17dp"/>
+            android:visibility="visible"
+            app:kswTintColor="#16A560"/>
 
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@color/bar_divider"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -245,25 +259,27 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:text="Vibrator + Sound"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:textColor="@color/qmui_config_color_white"/>
 
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/soundShakeSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:kswTintColor="#16A560"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="17dp"
             android:layout_marginRight="17dp"
-            android:layout_marginEnd="17dp"/>
+            android:visibility="visible"
+            app:kswTintColor="#16A560"/>
 
     </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"

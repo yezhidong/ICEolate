@@ -2,6 +2,8 @@ package com.android.yzd.iceolate;
 
 import com.clj.fastble.utils.HexUtil;
 
+import static android.R.attr.data;
+
 /**
  * <p>Title:        Test
  * <p>Description:
@@ -17,6 +19,8 @@ import com.clj.fastble.utils.HexUtil;
 public class Test {
 
     public static void main(String[] args) {
+        String string = Integer.toBinaryString(17);
+        System.out.print(string);
         CommandControl instance = CommandControl.getInstance();
         byte[] bytes = instance.getTime();
     }

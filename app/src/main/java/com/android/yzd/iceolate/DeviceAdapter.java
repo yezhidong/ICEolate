@@ -16,6 +16,8 @@ import com.clj.fastble.data.BleDevice;
 import java.util.ArrayList;
 import java.util.List;
 
+import info.hoang8f.widget.FButton;
+
 public class DeviceAdapter extends BaseAdapter {
 
     private Context context;
@@ -96,7 +98,7 @@ public class DeviceAdapter extends BaseAdapter {
             holder.layout_idle = (LinearLayout) convertView.findViewById(R.id.layout_idle);
             holder.layout_connected = (LinearLayout) convertView.findViewById(R.id.layout_connected);
             holder.btn_disconnect = (Button) convertView.findViewById(R.id.btn_disconnect);
-            holder.btn_connect = (Button) convertView.findViewById(R.id.btn_connect);
+            holder.btn_connect = (FButton) convertView.findViewById(R.id.btn_connect);
             holder.btn_detail = (Button) convertView.findViewById(R.id.btn_detail);
         }
 
@@ -111,14 +113,10 @@ public class DeviceAdapter extends BaseAdapter {
             holder.txt_rssi.setText(String.valueOf(rssi));
             if (isConnected) {
                 holder.img_blue.setImageResource(R.mipmap.ic_blue_connected);
-                holder.txt_name.setTextColor(0xFF1DE9B6);
-                holder.txt_mac.setTextColor(0xFF1DE9B6);
                 holder.layout_idle.setVisibility(View.GONE);
-                holder.layout_connected.setVisibility(View.VISIBLE);
+                holder.layout_connected.setVisibility(View.GONE);
             } else {
                 holder.img_blue.setImageResource(R.mipmap.ic_blue_remote);
-                holder.txt_name.setTextColor(0xFF000000);
-                holder.txt_mac.setTextColor(0xFF000000);
                 holder.layout_idle.setVisibility(View.VISIBLE);
                 holder.layout_connected.setVisibility(View.GONE);
             }
@@ -162,7 +160,7 @@ public class DeviceAdapter extends BaseAdapter {
         LinearLayout layout_idle;
         LinearLayout layout_connected;
         Button btn_disconnect;
-        Button btn_connect;
+        FButton btn_connect;
         Button btn_detail;
     }
 

@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/qmui_config_color_75_pure_black"
     tools:context="com.android.yzd.iceolate.HistoryActivity"
     android:orientation="vertical">
 
@@ -21,12 +22,12 @@
         android:id="@+id/tabSegment"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@color/tab_panel_bg"/>
+        android:background="@color/qmui_config_color_black"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/contentViewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/qmui_config_color_white"/>
+        android:background="@color/qmui_config_color_black"/>
 </LinearLayout>

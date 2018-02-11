@@ -37,7 +37,11 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText("Time: \n" + mValues.get(position).id);
-        holder.mContentView.setText("Temperature: \n" + mValues.get(position).content);
+        if (mValues.get(position).content == -10.0) {
+            holder.mContentView.setText("Temperature: \n");
+        } else {
+            holder.mContentView.setText("Temperature: \n" + mValues.get(position).content + "℃");
+        }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

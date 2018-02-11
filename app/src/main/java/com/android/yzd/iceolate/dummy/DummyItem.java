@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class DummyItem implements Parcelable {
-        public final String id;
-        public final float content;
+        public String id;
+        public float content;
 
         public DummyItem(String id, float content) {
             this.id = id;
